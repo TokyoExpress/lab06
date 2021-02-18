@@ -116,68 +116,81 @@ Exit:
 
 IterativeMax:
 
-    addiu $sp, $sp, -16
+    addiu $sp, $sp, -28
     sw $s0, 0($sp)
     sw $s1, 4($sp)
     sw $s2, 8($sp)
-    sw $ra, 12($sp)
+    sw $s3, 12($sp)
+    sw $s4, 16($sp)
+    sw $s5, 20($sp)
+    sw $ra, 24($sp)
 
     move $s0, $a0
     move $s1, $a1
     lw $s2, 0($a0)
 
     move $t0, $s0
-    lw $t1, 0($t0)
-    move $t2, $s1
-    li $t3, 1
+    li $t1, 1
 
     j loop
 
 loop:
 
-    lw $t1, 0($t0)
+    lw $t2, 0($t0)
 
     li $v0, 1
-    move $a0, $t1
+    move $a0, $t2
     syscall
 
     li $v0, 4
     la $a0, newline
     syscall
 
-    move $a0, $t1
+    move $a0, $t2
     move $a1, $s2
-    jal newmax
 
-    move $s2, $v0
+    jal checkmax
+
     li $v0, 1
-    move $a0, $s2
+    move $a0, $v1
     syscall
+
+    move $s2, $v1
+    move $s3, $t0
+    move $s4, $t2
+    move $s5, $t1
 
     jal ConventionCheck
 
+    move $t0, $s3
+    move $t2, $s4
+    move $t1, $s5
+    move $v1, $s2
+
     addiu $t0, $t0, 4
-    addi $t3, $t3, 1
-    addi $t4, $s1, 1
-    bne $t4, $t3, loop
+    addi $t1, $t1, 1
+
+    bge $s1, $t1, loop
 
     lw $s0, 0($sp)
     lw $s1, 4($sp)
     lw $s2, 8($sp)
-    lw $ra, 12($sp)
+    lw $s3, 12($sp)
+    lw $s4, 16($sp)
+    lw $s5, 20($sp)
+    lw $ra, 24($sp)
 
-    addiu $sp, $sp, 24
+    addiu $sp, $sp, 28
 
     # Do not remove this line
     jr      $ra
 
-newmax:
+checkmax:
+    bgt $a0, $a1, swap
+    move $v1, $a1
+    jr $ra
+
+swap:
+    move $v1, $a0
+    jr $ra
     
-    blt $a1, $a0, change
-    move $v0, $a1
-    jr $ra
-
-change:
-
-    move $v0, $a0
-    jr $ra

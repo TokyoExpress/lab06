@@ -127,27 +127,34 @@ PrintReverse:
 
     li $t0, 4
     mult $t0, $a1
-    mflo $s2
-    addiu $s2, $s2, -4
+    mflo $t2
+    addiu $t2, $t2, -4
 
-    add $s0, $s0, $s2
+    move $t0, $a0
+    move $t1, $a1
+
+    move $s2, $t0
+    add $s2, $s2, $t2
 
     j loop
 
 loop:
 
-    lw $t1, 0($s0)
+    lw $t4, 0($s2)
 
     li $v0, 1
-    move $a0, $t1
+    move $a0, $t4
     syscall
-
-    addiu $s0, $s0, -4
+    
+    addiu $s2, $s2, -4
 
     jal ConventionCheck
 
-    addiu $t2, $a0, -4
-    bne $s0, $t2, loop
+    move $a0, $s0
+    move $a1, $s1
+
+    addiu $t3, $a0, -4
+    bne $s2, $t3, loop
 
     lw $s0, 0($sp)
     lw $s1, 4($sp)
